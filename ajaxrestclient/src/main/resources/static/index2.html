@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>AJAX Client</title>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css">
+        <link rel="stylesheet" href="https://unpkg.com/bootstrap-table@1.15.5/dist/bootstrap-table.min.css">
+        
+        <link href="https://unpkg.com/tabulator-tables@4.5.3/dist/css/tabulator.min.css" rel="stylesheet">
+        
+        <style>
+			.header{
+ 				background-image: url('/img/stock-market.jpg');
+ 				background-attachment: fixed;
+ 				background-size: cover;
+ 				background-position: center;
+		}
+		.overlay{
+ 				position: absolute;
+ 				min-height: 100%;
+ 				min-width: 100%;
+ 				left: 0;
+ 				top: 0;
+ 				background: rgba(244, 244, 244, 0.15);
+		}
+        </style>
+    </head>
+    
+    <body>
+	<header class="header">
+  	    <div class="overlay">
+		<div class="jumbotron jumbotron-fluid text-center bg-dark text-white">
+    	   <h2 class="display-4">AJAX Client Example</h2>
+      	   <p>Example of rest client consuming different api endpoints</p>
+   		</div>
+		
+		<div class="container">
+  			<div class="row">
+    			<div class="col-sm-4 bg-info text-white">
+      				<h3>BTC-USD price and vol.</h3>
+      				<p class="price">Last Price (USD): </p>
+      				<p class="volume">Volume (BTC): </p>
+    			</div>
+    			<div class="col-sm-4 bg-light text-dark">
+      				<h3>Avg oil production</h3>
+      				<p class="avg">BBL/D/1K averaged: </p>
+      				
+    			</div>
+    			<div class="col-sm-4 bg-warning text-dark">
+      				<h3>Quote of the day:</h3>        
+      				<p> 
+      				 "<span class="quote"></span>"
+      				 <span class="author"></span>
+      				</p>
+    			</div>
+  			</div>
+		</div>
+		<!--  
+        <table 
+        	data-toggle="table"
+  			data-url="http://localhost:8080/api/v1/production">
+    		<thead>
+       	 		<tr>
+            		<th data-field="id" data-type="numeric">ID</th>
+            		<th data-field="month">Month</th>
+            		<th data-field="production" data-order="desc">BBL/D/1K produced</th>
+            		
+        		</tr>
+    		</thead>
+		</table>
+		-->
+		
+  		<p></p> 
+        <div class="container">
+            <div class="row"> 
+            <div class="mx-auto">
+  			   <h3 class="text-white">2019 BBL/D/1K per month  </h3>
+  			</div>
+  			</div>
+  			<div class="row">  		     	
+    			<div class="mx-auto" id="data-table"></div>
+		    </div>
+        </div>
+        
+      </div>
+   </header>	
+		
+		
+        <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+  		<script type="text/javascript" src="https://maxcdn.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js"></script>  		
+		<script type="text/javascript" src="https://unpkg.com/bootstrap-table@1.15.5/dist/bootstrap-table.min.js"></script>    
+       
+        <script type="text/javascript" src="https://unpkg.com/tabulator-tables@4.5.3/dist/js/tabulator.min.js"></script>
+
+        <script>
+            $(document).ready(function() {
+            	
+            	$.ajax({
+                    url: "http://localhost:5000/api/v1/btcusd",
+                    dataType: 'json',
+                    type: 'GET'
+                }).then(function(data1) {
+                    $('.price').append(data1.price);
+                    $('.volume').append(data1.volume);
+                    console.log(data1);
+                });
+            	    	
+            	$.ajax({
+                	url: "http://localhost:8080/api/v1/production/average",
+                	dataType: 'json',
+                	type: 'GET'
+            	}).then(function(data2) {
+               		$('.avg').append(data2.avg);
+               		console.log(data2);
+            	});
+                
+            	$.ajax({
+                	url: "http://quotes.rest/qod.json",
+                	dataType: 'json',
+                	type: 'GET'
+            	}).then(function(data3) {
+               		$('.quote').append(data3.contents.quotes[0].quote);
+               		$('.author').append(data3.contents.quotes[0].author);
+               		console.log(data3);
+            	});
+                
+                var table = new Tabulator("#data-table", {
+                    height:"160px",
+                    layout:"fitColumns",
+                    placeholder:"No Data Set",
+                    columns:[
+                        {title:"Id", field:"id", sorter:"string", width:100},
+                        {title:"Month", field:"month", sorter:"string", width:200},
+                        {title:"BBL/D/1K produced", field:"production", sorter:"string", width:200},
+                    ],
+                });
+                table.setData("http://localhost:8080/api/v1/production");
+                 
+                $('.header').height($(window).height());	 
+            });
+        </script>
+    </body>
+</html>

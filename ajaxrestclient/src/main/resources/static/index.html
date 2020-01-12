@@ -36,8 +36,14 @@
   			<div class="row">
     			<div class="col-sm-4 bg-info text-white">
       				<h3>BTC-USD price and vol.</h3>
-      				<p class="price">Last Price (USD): </p>
-      				<p class="volume">Volume (BTC): </p>
+      				<p>
+      					<span>Last Price (USD):</span>
+      					<span class="price"></span>
+      				</p>
+      				<p>
+      					<span>Volume (BTC):</span>
+      					<span class="volume"></span>
+      				</p> 
     			</div>
     			<div class="col-sm-4 bg-warning text-dark">
       				<h3>Avg oil production</h3>
@@ -74,17 +80,19 @@
         <script type="text/javascript" src="https://unpkg.com/tabulator-tables@4.5.3/dist/js/tabulator.min.js"></script>
         <script>
             $(document).ready(function() {
+                    
+               setInterval(function(data0) {
+            	   $.ajax({
+                           url: "http://localhost:5000/api/v1/btcusd",
+                           dataType: 'json',
+                           type: 'GET'
+                   }).then(function(data1) {
+                            $('.price').text(data1.price);
+                            $('.volume').text(data1.volume);
+                            console.log(data1);
+                   });     
+            	}, 2000);
             	
-            	$.ajax({
-                    url: "http://localhost:5000/api/v1/btcusd",
-                    dataType: 'json',
-                    type: 'GET'
-                }).then(function(data1) {
-                    $('.price').append(data1.price);
-                    $('.volume').append(data1.volume);
-                    console.log(data1);
-                });
-            	    	
             	$.ajax({
                 	url: "http://localhost:8080/api/v1/production/average",
                 	dataType: 'json',

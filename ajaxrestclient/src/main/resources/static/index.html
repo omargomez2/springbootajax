@@ -68,15 +68,14 @@
   		<p></p> 
         <div class="container">
   			<div class="row">  	
-  				<div class="col-sm-6 bg-light text-dark">
-  					<h3>2019 BBL/D/1K per month</h3>	     	
+  				<div class="col-sm-6 bg-dark text-light">
+  					<span>2019 BBL/D/1K per month</span>	     	
     				<div id="data-table">    					
     				</div>
     			</div>			
-    			<div class="col-sm-3 bg-dark text-white">
+    			<div class="col-sm-3 bg-light text-dark">
       				<form>
-      				<div class="form-group"></div>
-  					<div class="form-group">
+  					<div class="form-group pt-xl-4">
     			    	<input type="text" class="form-control" id="month" placeholder="Enter the month">
   					</div>
   					<div class="form-group">
@@ -103,8 +102,8 @@
                            dataType: 'json',
                            type: 'GET'
                    }).then(function(data1) {
-                            $('.price').text(data1.price);
-                            $('.volume').text(data1.volume);
+                            $('.price').text(Number(data1.price).toLocaleString('en'));
+                            $('.volume').text(Number(data1.volume).toLocaleString('en'));
                             console.log(data1);
                    });     
             	}, 2100);
@@ -114,7 +113,7 @@
                 	dataType: 'json',
                 	type: 'GET'
             	}).then(function(data2) {
-               		$('.avg').append(data2.avg);
+            		$('.avg').append(Number(data2.avg).toLocaleString('en'));
                		console.log(data2);
             	});
                 
@@ -133,9 +132,9 @@
                     layout:"fitColumns",
                     placeholder:"No Data Set",
                     columns:[
-                        {title:"Id", field:"id", sorter:"string", width:100},
+                        {title:"Id", field:"id", sorter:"string", width:123},
                         {title:"Month", field:"month", sorter:"string", width:200},
-                        {title:"BBL/D/1K produced", field:"production", sorter:"string", width:200},
+                        {title:"BBL/D/1K produced", field:"production", sorter:"string", formatter:"money", formatterParams:{precision:false}, width:200},
                     ],
                 });
                 table.setData("http://localhost:8080/api/v1/production");

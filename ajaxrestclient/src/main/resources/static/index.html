@@ -40,7 +40,7 @@
 		<div class="container">
   			<div class="row">
     			<div class="col-sm-4 bg-info text-white">
-      				<h3>BTC-USD price and vol.</h3>
+      				<h3>BTC-USD price and volume</h3>
       				<p>
       					<span>Last Price (USD):</span>
       					<span class="price"></span>
@@ -51,12 +51,13 @@
       				</p> 
     			</div>
     			<div class="col-sm-4 bg-warning text-dark">
-      				<h3>Avg oil production</h3>
-      				<p class="avg">BBL/D/1K averaged: </p>
+      				<h3>Average oil production</h3>
+      				<span>BBL/D/1K:</span>
+      				<span class="avg"></span>
       				
     			</div>
     			<div class="col-sm-4 bg-success text-white">
-      				<h3>Quote of the day:</h3>        
+      				<h3>Quote of the day</h3>        
       				<p> 
       				 "<span class="quote"></span>"
       				 <span class="author"></span>
@@ -74,15 +75,15 @@
     				</div>
     			</div>			
     			<div class="col-sm-3 bg-light text-dark">
-      				<form>
+      			  <form id="form">
   					<div class="form-group pt-xl-4">
-    			    	<input type="text" class="form-control" id="month" placeholder="Enter the month">
+    			    	<input type="text" class="form-control" name="month" placeholder="Enter the month">
   					</div>
   					<div class="form-group">
-    					<input type="text" class="form-control" id="production" placeholder="Enter BBL/D/1K month production">
+    					<input type="text" class="form-control" name="production" placeholder="Enter BBL/D/1K month production">
   					</div>
-  						<button type="submit" class="btn btn-primary">Add</button>
-					</form>
+  						<button id="add_btn" type="submit" class="btn btn-primary">Add</button>
+				   </form>
     			</div>	
 		    </div>
         </div>
@@ -94,8 +95,45 @@
   		<script type="text/javascript" src="https://maxcdn.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js"></script>  			
         <script type="text/javascript" src="https://unpkg.com/tabulator-tables@4.5.3/dist/js/tabulator.min.js"></script>
         <script>
-            $(document).ready(function() {
-                    
+            $(document).ready(function() {           	
+               function update_avg(){
+                 	$.ajax({
+                    	url: "http://localhost:8080/api/v1/production/average",
+                    	dataType: 'json',
+                    	type: 'GET'
+                	}).then(function(data2) {
+                		$('.avg').text(Number(data2.avg).toLocaleString('en'));
+                   		console.log(data2);
+                	});
+               }
+               
+               $('#add_btn').click(function(a){
+            	    event.preventDefault();
+             	    var formdata = $('#form').serializeArray();
+             	    var dd = {};
+            	    $(formdata).each(function(index, obj){
+            	       dd[obj.name] = obj.value;
+            	    });
+            	    if ( (dd['month'] != '') && (dd['production'] != '') && !isNaN(dd['production'])){
+            	       $.ajax({
+           		           cache: false,
+           		           url:'http://localhost:8080/api/v1/production',
+           		           type: "POST",
+           		           data: JSON.stringify(dd),
+           		           contentType:'application/json; charset=utf-8',
+           		           success: function(data){
+           	  		          console.log(data);
+           			          table.setData("http://localhost:8080/api/v1/production");
+           			          $('#form')[0].reset();
+           			          update_avg();
+           		           },
+           		           error: function(xhr, resp, text){
+           			          console.log(xhr, resp, text);
+           		           }
+           	           })  
+           	        }
+               })	
+            	
                setInterval(function(data0) {
             	   $.ajax({
                            url: "http://localhost:5000/api/v1/btcusd",
@@ -108,22 +146,15 @@
                    });     
             	}, 2100);
             	
-            	$.ajax({
-                	url: "http://localhost:8080/api/v1/production/average",
-                	dataType: 'json',
-                	type: 'GET'
-            	}).then(function(data2) {
-            		$('.avg').append(Number(data2.avg).toLocaleString('en'));
-               		console.log(data2);
-            	});
+            	update_avg();
                 
             	$.ajax({
                 	url: "http://quotes.rest/qod.json?category=art",
                 	dataType: 'json',
                 	type: 'GET'
             	}).then(function(data3) {
-               		$('.quote').append(data3.contents.quotes[0].quote);
-               		$('.author').append(data3.contents.quotes[0].author);
+               		$('.quote').text(data3.contents.quotes[0].quote);
+               		$('.author').text(data3.contents.quotes[0].author);
                		console.log(data3);
             	});
                 
